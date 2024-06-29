@@ -1,0 +1,12 @@
+{
+  "name": "my-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker project",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Build step placeholder\""
+  },
+  "author": "",
+  "license": "ISC"
+}
