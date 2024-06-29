@@ -1,0 +1,10 @@
+name = "my-worker"
+account_id = "e5f65b945d2eec0b2e9eb6ad71cc41ab"
+workers_dev = true
+compatibility_date = "2024-06-28"
+
+main ="worker.js"
+
+[env.production]
+route= "tunnel.projecthui.biz/secure/*"
+zone_id = "f0f88f6f5a9fcf00fa99ca4a0a2b508a"
