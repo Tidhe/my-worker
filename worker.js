@@ -10,12 +10,12 @@ async function handleRequest(request) {
     const email = "chongkeatop@gmail.com";
     const timestamp = new Date().toISOString();
     const country = "Malaysia";
-    
+
     const htmlResponse = `
       <html>
       <body>
-        ${email} authenticated at ${timestamp} from ${country}
-        <p><a href="/secure/${country}">Click here to view ${country} flag</a></p>
+        ${email} authenticated at ${timestamp} from <a href="/secure/${country}">${country}</a>
+        <p><a href="/secure/${country}">Click here to view Malaysia flag</a></p>
       </body>
       </html>
     `;
@@ -25,23 +25,27 @@ async function handleRequest(request) {
         'Content-Type': 'text/html'
       }
     });
-  }
+  } else if (pathname.startsWith('/secure/')) {
+    // Handle /secure/${COUNTRY} endpoint
+    const country = pathname.split('/').pop().toLowerCase();
+    const bucketUrl = `https://your-r2-bucket-url/flags/${country}.png`;
 
-  const countryCode = pathname.split('/secure/')[1];
-
-  if (countryCode) {
-    // Handle /secure/{COUNTRY} endpoint
-    // Fetch flag image from R2 bucket
-    const flagUrl = `https://e5f65b945d2eec0b2e9eb6ad71cc41ab.r2.cloudflarestorage.com/flags/${countryCode}.png`;
-    const imageResponse = await fetch(flagUrl);
-    
-    if (!imageResponse.ok) {
-      return new Response("Flag not found", { status: 404 });
+    const flagResponse = await fetch(bucketUrl);
+    if (flagResponse.ok) {
+      return new Response(flagResponse.body, {
+        headers: {
+          'Content-Type': 'image/png'
+        }
+      });
+    } else {
+      return new Response('Flag not found', {
+        status: 404,
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
     }
-
-    const imageBuffer = await imageResponse.arrayBuffer();
-    return new Response(imageBuffer, { headers: { 'Content-Type': 'image/png' } });
   }
 
-  return new Response("Not Found", { status: 404 });
+  return new Response('Not found', { status: 404 });
 }
