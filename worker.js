@@ -1,51 +1,40 @@
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+  event.respondWith(handleRequest(event.request));
+});
 
 async function handleRequest(request) {
   const { pathname } = new URL(request.url);
 
-  if (pathname === '/secure') {
-    // Handle /secure endpoint
+  // This checks for exactly '/secure' or '/secure/' and shows the main page
+  if (pathname === '/secure' || pathname === '/secure/') {
     const email = "chongkeatop@gmail.com";
     const timestamp = new Date().toISOString();
-    const country = "Malaysia";
-
-    const htmlResponse = `
+    const responseHtml = `
       <html>
       <body>
-        ${email} authenticated at ${timestamp} from <a href="/secure/${country}">${country}</a>
-        <p><a href="/secure/${country}">Click here to view Malaysia flag</a></p>
+        ${email} authenticated at ${timestamp} from Malaysia
+        <p><a href="/secure/Malaysia">Click here to view Malaysia flag</a></p>
       </body>
       </html>
     `;
 
-    return new Response(htmlResponse, {
+    return new Response(responseHtml, {
       headers: {
         'Content-Type': 'text/html'
       }
     });
-  } else if (pathname.startsWith('/secure/')) {
-    // Handle /secure/${COUNTRY} endpoint
-    const country = pathname.split('/').pop().toLowerCase();
-    const bucketUrl = `https://your-r2-bucket-url/flags/${country}.png`;
-
-    const flagResponse = await fetch(bucketUrl);
-    if (flagResponse.ok) {
-      return new Response(flagResponse.body, {
-        headers: {
-          'Content-Type': 'image/png'
-        }
-      });
-    } else {
-      return new Response('Flag not found', {
-        status: 404,
-        headers: {
-          'Content-Type': 'text/plain'
-        }
-      });
-    }
   }
 
-  return new Response('Not found', { status: 404 });
+  // This checks for the path to include '/secure/Malaysia' and serves the flag image
+  else if (pathname.includes('/secure/Malaysia')) {
+    const flagUrl = 'https://pub-ff0cd70a6c1d48efa3aa1e89b84bd817.r2.dev/image.png';
+    const imageResponse = await fetch(flagUrl);
+    if (!imageResponse.ok) {
+      return new Response("Flag not found", { status: 404 });
+    }
+    return new Response(imageResponse.body, { headers: { 'Content-Type': 'image/png' } });
+  }
+
+  // If no paths match, return 'Not Found'
+  return new Response("Not Found", { status: 404 });
 }
